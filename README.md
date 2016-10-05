@@ -341,3 +341,35 @@ get stat:
 ```
 varnishstat
 ```
+####HAProxy load balancing
+#####HAProxy installation
+```
+vim /etc/haproxy/haproxy.cfg
+```
+a config
+```
+frontend http
+  bind *:80
+  mode http
+  default_backend web-backends
+  
+backend web-backend 
+  mode http
+  balance roundrobin
+  option forwardfor
+  server web1 1.0.0.1:8080 check
+  server web2 1.0.0.0:8080 check
+```
+stat page
+```
+listen stats *:1434
+  stats enable
+  stats uri /haproxy-stats
+  stats auth user:pass
+```
+##Chapter 4. Improving Database Performance
+###The MySQL database
+####Query caching
+```
+SHOW VARIABLES LIKE 'have_query_cache';
+```
