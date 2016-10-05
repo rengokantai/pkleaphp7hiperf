@@ -209,3 +209,135 @@ not allowed in 7.
 ```
 session_start(['cookie_lifetime' => 3600,'read_and_close'  => true]);
 ```
+
+##Chapter 3. Improving PHP 7 Application Performance
+###HTTP server optimization
+####Caching static files
+#####Apache
+```
+<FiledMatch "\.(ico|jpg|png|gif|css|js|woff)$">
+Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
+```
+#####nginx
+```
+Location ~* .(ico|jpg|png|gif|css|js|woff)$ {
+  Expires 7d;
+}
+```
+
+###HTTP persistent connection
+HTTP keep-alive, a single TCP/IP connection is used for multiple requests or responses.  
+Benefits of the HTTP keep-alive:
+- The load on the CPU and memory is reduced because fewer TCP connections are opened at a time.
+- Reduces latency in subsequent requests after the TCP connection is established.   
+- Network congestion is reduced because only a few TCP connections are opened to the server at a time.  
+
+
+####Apache
+.htaccess
+```
+<ifModule mod_headers.c>
+  Header set Connection keep-alive
+</ifModule>
+```
+and add following
+```
+KeepAlive On
+MaxKeepAliveRequests 100
+KeepAliveTimeout 100
+```
+####nginx
+```
+keepalive_requests 100
+keepalive_timeout 100
+```
+
+
+
+####GZIP compression
+#####Apache
+```
+<IfModule mod_deflate.c>
+  SetOutputFilter DEFLATE
+  filters to different content types
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml    text/css text/javascript application/javascript
+  #Don't compress images
+  SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+</IfModule>
+```
+
+#####nginx
+```
+gzip on;
+gzip_vary on;   //used to enable varying headers
+gzip_types text/plain text/xml text/css text/javascript application/x-javascript;
+gzip_com_level 4; //1-9
+```
+
+####Disabling unused modules
+```
+apachectl –M
+nginx -V
+```
+
+####Web server resources
+#####nginx
+Simply speaking, ```worker_connections``` tells NGINX how many simultaneous requests can be handled by NGINX.  
+check the correct number
+```
+ulimit -n
+```
+####Content Delivery Network (CDN)
+Each browser has limitations for sending simultaneous requests to a domain. Mostly, it's three requests. 
+
+
+
+####Varnish
+If install 5.0, select from
+```
+https://repo.varnish-cache.org/pkg/5.0.0/
+```
+old 4.1 version,
+```
+deb https://repo.varnish-cache.org/debian/ Jessie varnish-4.1
+sudo apt-get update
+sudo apt-get install varnish
+```
+The first thing to do is configure Varnish to listen at port 80 and make your web server listen at another port, such as 8080.then
+```
+vim /etc/default/varnish
+```
+edit
+```
+DAEMON_OPS="-a :80 \
+  -T localhost:6082 \ 
+  -f /etc/varnish/default.vcl \
+  -S /etc/varnish/secret \
+  -s malloc,256m"
+```
+```
+sudo service varnish restart
+```
+for nginx, change
+```
+listen 8080;
+```
+```
+sudo service nginx restart
+```
+edit
+```
+/etc/varnish/default.vcl
+```
+edit
+```
+   backend default {
+      .host = "127.0.0.1";
+      .port = "8080";
+    }
+```
+get stat:
+```
+varnishstat
+```
