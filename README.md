@@ -459,3 +459,23 @@ then debug mode:
 ```
 http://url?XDEBUG_PROFILE=on
 ```
+
+
+##Chapter 6. Stress/Load Testing PHP Applications
+###Apache JMeter
+###ApacheBench (ab)
+```
+ab -n 10 -c 10 url
+```
+###Siege
+```
+wget http://download.joedog.org/siege/siege-latest.tar.gz
+tar xvf siege-latest.tar.gz
+cd siege-latest && ./configure
+make && make install
+```
+use
+```
+siege url
+```
+
