@@ -405,7 +405,57 @@ summary
 
 #####innodb_buffer_pool_size
 For a dedicated MySQL server, the recommended value is 50-80% of the installed memory on the server.
+
 #####innodb_buffer_pool_instances
 Tto use one instance per GB of innodb_buffer_pool_size.  
 If the value of innodb_bufer_pool_size is 16 GB, we will set innodb_buffer_pool_instances to 16.  
 
+####innodb_log_file_size
+The size of the log file that stores every query information executed. (1-4gb)
+
+
+
+
+
+
+
+###The Percona Server - a fork of MySQL
+###MySQL performance monitoring tools
+
+
+###Percona XtraDB Cluster (PXC)
+create user with replication privileges
+````
+CREATE USER 'root'@'%' IDENTIFIED BY 'root';
+GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'root'@'%';
+FLUSH PRIVILEGES;
+```
+(tbc)
+
+##Chapter 5. Debugging and Profiling
+
+Use the Homestead Vagrant box from Laravel.
+```
+vim /etc/php/7.0/fpm/conf.d/20-xdebug.ini
+```
+edit
+```
+zend_extension = xdebug.so
+xdebug.remote_enable = on
+xdebug.remote_connect_back = on
+xdebug.idekey = "vagrant"
+```
+restart php-fpm7.0
+```
+sudo service php-fpm7.0 restart
+```
+##Profiling with Xdebug
+Add following lines
+```
+xdebug.profiler_enable=on
+xdebug.profiler_output_dir=/var/xdebug/profiler/
+```
+then debug mode:
+```
+http://url?XDEBUG_PROFILE=on
+```
