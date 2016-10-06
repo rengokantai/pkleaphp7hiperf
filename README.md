@@ -373,3 +373,39 @@ listen stats *:1434
 ```
 SHOW VARIABLES LIKE 'have_query_cache';
 ```
+ebable query caching, in my.cnf
+```
+query_cache_type = 1
+query_cache_size = 128MB
+query_cache_limit = 1MB
+```
+If query_cache_size is greater than 0, then query cache is enabled, memory is allocated.  
+Queries that do not exceed the query_cache_limit value or use the SQL_NO_CACHE option are cached.  
+###Storage engines
+```
+ALTER TABLE tbname ENGINE=INNODB;
+```
+####The MyISAM storage engine
+summary:
+- MyISAM does not have support for foreign keys.
+- MyISAM supports full-text search.
+- MyISAM does not support transactions.
+- Data compression, replication, query caching, and data encryption is supported.
+- The cluster database is not supported.
+
+
+
+####The InnoDB storage engine
+summary
+- InnoDB is designed for high reliability and high performance when processing a high volume of data.
+- InnoDB supports foreign keys and forcing foreign keys constraints.
+- Transactions are supported.
+- Data compression, replication, query caching, and data encryption is supported.
+- InnoDB can be used in a cluster environment, but it does not have full support. However, InnoDB tables can be converted to the NDB storage engine, which is used in the MySQL cluster by changing the table engine to NDB.
+
+#####innodb_buffer_pool_size
+For a dedicated MySQL server, the recommended value is 50-80% of the installed memory on the server.
+#####innodb_buffer_pool_instances
+Tto use one instance per GB of innodb_buffer_pool_size.  
+If the value of innodb_bufer_pool_size is 16 GB, we will set innodb_buffer_pool_instances to 16.  
+
